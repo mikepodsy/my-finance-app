@@ -14,6 +14,21 @@ export function Header() {
   const [hasMore, setHasMore] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  function isStockResultArray(data: unknown): data is { results: StockResult[] } {
+    return (
+      typeof data === "object" &&
+      data !== null &&
+      Array.isArray((data as { results?: unknown }).results) &&
+      ((data as { results: unknown[] }).results.every(
+        (item) =>
+          typeof item === "object" &&
+          item !== null &&
+          typeof (item as StockResult).symbol === "string" &&
+          typeof (item as StockResult).name === "string"
+      ))
+    );
+  }
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearch(value);
@@ -25,20 +40,28 @@ export function Header() {
       return;
     }
     setLoading(true);
-    timeoutRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/search-stocks?q=${encodeURIComponent(value)}`);
-        const data = await res.json();
-        setResults(data.results.slice(0, 3));
-        setHasMore(data.results.length > 3);
-        setShowDropdown(true);
-      } catch {
-        setResults([]);
-        setHasMore(false);
-        setShowDropdown(false);
-      } finally {
-        setLoading(false);
-      }
+    timeoutRef.current = setTimeout(() => {
+      fetch(`/api/search-stocks?q=${encodeURIComponent(value)}`)
+        .then((res) => res.json())
+        .then((data: unknown) => {
+          if (isStockResultArray(data)) {
+            setResults(data.results.slice(0, 3));
+            setHasMore(data.results.length > 3);
+            setShowDropdown(true);
+          } else {
+            setResults([]);
+            setHasMore(false);
+            setShowDropdown(false);
+          }
+        })
+        .catch(() => {
+          setResults([]);
+          setHasMore(false);
+          setShowDropdown(false);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }, 300);
   };
 
