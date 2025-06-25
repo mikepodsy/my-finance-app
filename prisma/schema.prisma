@@ -14,19 +14,7 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
-}
-
-// Necessary for Next auth
+// Existing models for NextAuth
 model Account {
     id                       String  @id @default(cuid())
     userId                   String
@@ -62,7 +50,14 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
+    
+    // Viper Finance App fields
+    watchlists     Watchlist[]
+    holdings       Holding[]
+    alertSettings  AlertSetting[]
+    impactAlerts   ImpactAlert[]
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
 }
 
 model VerificationToken {
@@ -71,4 +66,189 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+// Viper Finance App Models
+
+model Watchlist {
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    userId      String
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    stocks      WatchlistStock[]
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@index([userId])
+}
+
+model Stock {
+    id              String   @id @default(cuid())
+    symbol          String   @unique
+    name            String
+    sector          String?
+    industry        String?
+    marketCap       Float?
+    currentPrice    Float?
+    previousClose   Float?
+    dailyChange     Float?
+    dailyChangePercent Float?
+    volume          Int?
+    lastUpdated     DateTime?
+    watchlistStocks WatchlistStock[]
+    holdings        Holding[]
+    impactAlerts    ImpactAlert[]
+    newsImpacts     NewsImpact[]
+    priceHistory    StockPriceHistory[]
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    @@index([symbol])
+    @@index([sector])
+}
+
+model WatchlistStock {
+    id          String   @id @default(cuid())
+    watchlistId String
+    stockId     String
+    addedAt     DateTime @default(now())
+    watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+    stock       Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
+
+    @@unique([watchlistId, stockId])
+    @@index([watchlistId])
+    @@index([stockId])
+}
+
+model Holding {
+    id          String   @id @default(cuid())
+    userId      String
+    stockId     String
+    quantity    Float
+    avgCostBasis Float
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    stock       Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@unique([userId, stockId])
+    @@index([userId])
+    @@index([stockId])
+}
+
+model NewsArticle {
+    id           String      @id @default(cuid())
+    title        String
+    content      String?
+    summary      String?
+    source       String
+    url          String      @unique
+    publishedAt  DateTime
+    sentiment    Float?      // -1 to 1 scale
+    relevanceScore Float?    // 0 to 1 scale
+    category     String?     // "policy", "earnings", "general", etc.
+    entities     String[]    // extracted companies, people, topics
+    impactAlerts ImpactAlert[]
+    newsImpacts  NewsImpact[]
+    policyEvents PolicyEvent[]
+    createdAt    DateTime    @default(now())
+
+    @@index([publishedAt])
+    @@index([category])
+    @@index([sentiment])
+}
+
+model NewsImpact {
+    id            String      @id @default(cuid())
+    newsArticleId String
+    stockId       String
+    impactScore   Float       // 0-10 scale
+    predictedImpact Float?    // percentage change prediction
+    confidenceLevel Float     // 0-1 scale
+    explanation   String      // AI-generated explanation
+    newsArticle   NewsArticle @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
+    stock         Stock       @relation(fields: [stockId], references: [id], onDelete: Cascade)
+    createdAt     DateTime    @default(now())
+
+    @@unique([newsArticleId, stockId])
+    @@index([newsArticleId])
+    @@index([stockId])
+    @@index([impactScore])
+}
+
+model ImpactAlert {
+    id                String      @id @default(cuid())
+    userId            String
+    stockId           String
+    newsArticleId     String
+    impactScore       Float       // 0-10 scale
+    predictedImpact   Float?      // percentage change prediction
+    confidenceLevel   Float       // 0-1 scale
+    timeframe         String      // "short", "medium", "long"
+    explanation       String      // AI-generated explanation
+    isRead            Boolean     @default(false)
+    isDismissed       Boolean     @default(false)
+    user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    stock             Stock       @relation(fields: [stockId], references: [id], onDelete: Cascade)
+    newsArticle       NewsArticle @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
+    createdAt         DateTime    @default(now())
+
+    @@index([userId])
+    @@index([stockId])
+    @@index([newsArticleId])
+    @@index([isRead])
+    @@index([createdAt])
+}
+
+model AlertSetting {
+    id                String  @id @default(cuid())
+    userId            String
+    stockSymbol       String?
+    category          String? // "all", "policy", "earnings"
+    minImpactScore    Float   @default(5.0)
+    enableEmail       Boolean @default(true)
+    enablePush        Boolean @default(true)
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+
+    @@unique([userId, stockSymbol, category])
+    @@index([userId])
+}
+
+// Historical data for backtesting and analysis
+model StockPriceHistory {
+    id          String   @id @default(cuid())
+    stockId     String
+    date        DateTime
+    open        Float
+    high        Float
+    low         Float
+    close       Float
+    volume      Int
+    stock       Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
+    createdAt   DateTime @default(now())
+
+    @@unique([stockId, date])
+    @@index([stockId])
+    @@index([date])
+}
+
+// Policy tracking for specialized analysis
+model PolicyEvent {
+    id          String   @id @default(cuid())
+    title       String
+    description String
+    category    String   // "fiscal", "monetary", "regulatory", "trade"
+    region      String   // "US", "EU", "China", etc.
+    impact      String   // "positive", "negative", "neutral"
+    date        DateTime
+    affectedSectors String[] // sectors that might be impacted
+    newsArticles NewsArticle[]
+    createdAt   DateTime @default(now())
+
+    @@index([category])
+    @@index([region])
+    @@index([date])
 }
