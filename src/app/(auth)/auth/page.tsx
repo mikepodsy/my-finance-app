@@ -19,7 +19,8 @@ export default function AuthPage() {
       passwordSchema.parse(password);
       return true;
     } catch (e) {
-      setError((e as Error).message);
+      const error = e as Error;
+      setError(error.message);
       return false;
     }
   };
@@ -35,13 +36,14 @@ export default function AuthPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Unknown error");
+      const data = await res.json() as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Unknown error");
       toast.success(mode === "login" ? "Logged in!" : "Registered!");
       // Optionally redirect or update UI
     } catch (e) {
-      setError((e as Error).message);
-      toast.error((e as Error).message);
+      const error = e as Error;
+      setError(error.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }

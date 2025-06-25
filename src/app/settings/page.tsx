@@ -13,7 +13,6 @@ import {
   Shield, 
   Palette, 
   Globe, 
-  CreditCard, 
   Download, 
   Trash2, 
   Key, 

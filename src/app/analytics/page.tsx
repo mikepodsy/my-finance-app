@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, TrendingDown, BarChart3, PieChart, Target, Shield, DollarSign, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, BarChart3, Target, Shield, DollarSign, Calendar } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface PerformanceMetric {
@@ -49,7 +48,6 @@ const mockSectorAllocation = [
 
 export default function AnalyticsPage() {
   const [selectedTimeframe, setSelectedTimeframe] = useState("1Y");
-  const [selectedMetric, setSelectedMetric] = useState("performance");
 
   const getStatusColor = (status: RiskMetric["status"]) => {
     switch (status) {
@@ -69,8 +67,7 @@ export default function AnalyticsPage() {
     }
   };
 
-  const totalAllocation = mockSectorAllocation.reduce((sum, sector) => sum + sector.allocation, 0);
-  const totalReturn = mockPerformance.find(p => p.period === "1Y")?.return || 0;
+  const totalReturn = mockPerformance.find(p => p.period === "1Y")?.return ?? 0;
 
   return (
     <DashboardLayout>
@@ -330,7 +327,7 @@ export default function AnalyticsPage() {
                   <div className="font-semibold p-2">TSLA</div>
                   <div className="font-semibold p-2">SPY</div>
                   
-                  {["AAPL", "MSFT", "GOOGL", "TSLA", "SPY"].map((asset, i) => (
+                  {["AAPL", "MSFT", "GOOGL", "TSLA", "SPY"].map((asset, _i) => (
                     <div key={asset} className="font-semibold p-2 border-t">{asset}</div>
                   ))}
                   

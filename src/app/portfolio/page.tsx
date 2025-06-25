@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Plus, TrendingUp, TrendingDown, DollarSign, PieChart } from "lucide-react";
+import { Plus, TrendingUp, DollarSign, PieChart } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface Holding {
@@ -94,7 +93,7 @@ export default function PortfolioPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's Change</CardTitle>
+              <CardTitle className="text-sm font-medium">Today&apos;s Change</CardTitle>
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>

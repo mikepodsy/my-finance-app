@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Bell, AlertTriangle, TrendingUp, TrendingDown, DollarSign, Globe, Settings, Trash2 } from "lucide-react";
+import { Bell, AlertTriangle, TrendingUp, DollarSign, Globe, Settings, Trash2 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface Alert {
@@ -231,7 +231,7 @@ export default function AlertsPage() {
                     key={type}
                     variant={filterType === type ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setFilterType(type as any)}
+                    onClick={() => setFilterType(type as "all" | "impact" | "price" | "news" | "policy")}
                   >
                     {type.charAt(0).toUpperCase() + type.slice(1)}
                   </Button>

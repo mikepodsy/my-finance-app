@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { AlertTriangle, Calendar, TrendingUp, TrendingDown, FileText, Users, Clock, CheckCircle, XCircle } from "lucide-react";
+import { AlertTriangle, Calendar, TrendingUp, TrendingDown, FileText, Users, Clock, CheckCircle } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface PolicyEvent {
@@ -253,7 +253,7 @@ export default function PolicyPage() {
                     key={category}
                     variant={selectedCategory === category ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedCategory(category as any)}
+                    onClick={() => setSelectedCategory(category as "all" | "regulation" | "legislation" | "enforcement" | "guidance" | "deadline")}
                   >
                     {category.charAt(0).toUpperCase() + category.slice(1)}
                   </Button>
@@ -265,7 +265,7 @@ export default function PolicyPage() {
                     key={status}
                     variant={selectedStatus === status ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedStatus(status as any)}
+                    onClick={() => setSelectedStatus(status as "all" | "upcoming" | "active" | "completed" | "delayed")}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </Button>
@@ -277,7 +277,7 @@ export default function PolicyPage() {
                     key={impact}
                     variant={selectedImpact === impact ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedImpact(impact as any)}
+                    onClick={() => setSelectedImpact(impact as "all" | "high" | "medium" | "low")}
                   >
                     {impact.charAt(0).toUpperCase() + impact.slice(1)} Impact
                   </Button>

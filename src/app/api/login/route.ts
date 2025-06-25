@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { db } from "~/server/db";
 
-const JWT_SECRET = process.env.JWT_SECRET || "changeme-in-prod";
+const JWT_SECRET = process.env.JWT_SECRET ?? "changeme-in-prod";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
     }
     const user = await db.user.findUnique({ where: { email } });
-    if (!user || !user.password) {
+    if (!user?.password) {
       return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
     }
     const valid = await bcrypt.compare(password, user.password);

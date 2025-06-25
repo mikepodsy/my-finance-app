@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Bookmark, Share2, TrendingUp, TrendingDown, Globe, Clock, Filter, Search } from "lucide-react";
+import { Bookmark, Share2, TrendingUp, TrendingDown, Globe, Clock, Search } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface NewsArticle {
@@ -180,7 +180,6 @@ export default function NewsPage() {
 
   const positiveNews = news.filter(article => article.sentiment === "positive").length;
   const negativeNews = news.filter(article => article.sentiment === "negative").length;
-  const neutralNews = news.filter(article => article.sentiment === "neutral").length;
 
   return (
     <DashboardLayout>
@@ -272,7 +271,7 @@ export default function NewsPage() {
                       key={category}
                       variant={selectedCategory === category ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setSelectedCategory(category as any)}
+                      onClick={() => setSelectedCategory(category as "all" | "market" | "earnings" | "policy" | "tech" | "economy" | "crypto")}
                     >
                       {category.charAt(0).toUpperCase() + category.slice(1)}
                     </Button>
