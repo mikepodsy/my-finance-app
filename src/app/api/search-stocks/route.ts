@@ -1,5 +1,6 @@
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
+import yahooFinance from "yahoo-finance";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -9,13 +10,12 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Dynamically import yahoo-finance2
-    const yahooFinance = (await import("yahoo-finance2")).default;
-    const results = await yahooFinance.search(query, { quotesCount: 10 });
+    // Use yahoo-finance's search method
+    const results = await yahooFinance.search(query);
     // Filter to only equities and map to symbol/name
     const stocks = (results.quotes || [])
-      .filter((item) => item.quoteType === "EQUITY")
-      .map((item) => ({
+      .filter((item: any) => item.quoteType === "EQUITY")
+      .map((item: any) => ({
         symbol: item.symbol,
         name: item.shortname || item.longname || item.symbol,
       }));
